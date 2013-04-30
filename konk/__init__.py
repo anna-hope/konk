@@ -24,7 +24,10 @@ class KonkParser:
 
 	def parse(self, konkcode):
 		'Parser'
-		assert type(konkcode) is str, 'konkcode must be str'
+		assert type(konkcode) is str or hasattr(konkcode, 'read'), 'konkcode must be str or IO'
+
+		if type(konkcode) is not str:
+				konkcode = konkcode.read()
 
 		sorted_keywords = sorted(self.syntax.keys(), key=len, reverse=True)
 
@@ -34,6 +37,3 @@ class KonkParser:
 		pythoncode = konkcode
 
 		return pythoncode
-
-class stdfuncs():
-	pass
