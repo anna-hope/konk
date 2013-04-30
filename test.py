@@ -22,12 +22,7 @@ def main():
 			
 		print('failed: {}'.format(e))
 	except NameError as e:
-		codefile = open('testoutput.py', 'w')
-		codefile.write(code)
-		codefile.close()
-		code = open('testoutput.py').read()
-		exec(code)
-		os.unlink(os.path.join(os.path.dirname(os.path.realpath(__file__)), codefile.name))
+		print('parser passed, but the code could not be executed: {}'.format(e))
 	else:
 		print('passed')
 
