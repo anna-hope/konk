@@ -2,16 +2,30 @@
 
 # konkretno parser
 
-import re, os, sys, pprint
+import re, os, ast
 
 try:
 	import simplejson as json
 except ImportError:
 	import json
 
-class KonkParser:
+class BadInputException(TypeError):
 
-	def __init__(self):
+	def __str__(self):
+		return 'Input must be str or buffer'
+
+class Konk:
+
+	def __init__(self, konkcode):
+
+		if hasattr(konkcode, 'read'):
+			self._konkcode = konkcode.read()
+		elif type(konkcode) is str:
+			self._konkcode = konkcode
+		else:
+			raise BadInputException
+		
+
 		root_path = os.path.dirname(os.path.realpath(__file__))
 
 		syntax = json.load(open(os.path.join(root_path, 'syntax.json')))
@@ -22,18 +36,26 @@ class KonkParser:
 			for key in syntax[category]:
 				self.syntax[key] = syntax[category][key]
 
-	def parse(self, konkcode):
-		'Parser'
-		assert type(konkcode) is str or hasattr(konkcode, 'read'), 'konkcode must be str or IO'
 
-		if type(konkcode) is not str:
-				konkcode = konkcode.read()
+	def parse(self):
+		'''Returns konkcode translated into Python WITHOUT any konk imports, which may not yield executable code.
+		Use the process method to generate executabke python code'''
+		
+		konkcode = self._konkcode
 
-		sorted_keywords = sorted(self.syntax.keys(), key=len, reverse=True)
+		sorted_tokens = sorted(self.syntax.keys(), key=len, reverse=True)
 
-		for keyword in sorted_keywords:
-			konkcode = re.sub(r'(?<=[\s\(\)]){}(?=[\s\(\):])|^{}(?=[\s\(\):])'.format(keyword, keyword), self.syntax[keyword], konkcode, flags=re.MULTILINE)
+		for token in sorted_tokens:
+			konkcode = re.sub(r'(?<=[\s\(\)@]){token}(?=[\s\(\):])|^{token}(?=[\s\(\):])'.format(token=token), self.syntax[token], konkcode, flags=re.MULTILINE)
 
-		pythoncode = konkcode
+		return konkcode
 
-		return pythoncode
+	def process(self):
+		'''Processes konkcode and returns something which should be executable in Python'''
+
+		pythoncode = self.parse()
+
+		# this'll do for now, will be rewritten with something a tad more intelligent later
+		processed_code = 'from konk.stdlib import *\n\n' + pythoncode
+
+		return processed_code
