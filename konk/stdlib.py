@@ -1,3 +1,12 @@
+class KonkQuitter:
+    def __init__(self):
+        pass
+    
+    def __str__(self):
+        return 'Надо ввести пока() или нажать контроль-ди, бро'
+    def __call__(self):
+        raise SystemExit
+
 апс = abs
 все = all
 любой = any
@@ -32,6 +41,7 @@
 осторожно = input
 циферка = int
 борщ = print
-пока = quit
+пока = KonkQuitter()
+quit = KonkQuitter()
 
 

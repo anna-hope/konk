@@ -6,8 +6,13 @@ from code import InteractiveConsole
 class KonkInteractiveConsole(InteractiveConsole):
 
 	def push(self, line):
-		line = Konk(line).parse()
-		super().push(line)
+		pythonline = Konk(line).parse()
+		try:
+			super().push(pythonline)
+		except SyntaxError:
+			print("Факап, чувак: {}".format(line))
+		except NameError:
+			print("О чем ты, бро?")
 
 def main():
 	konki = KonkInteractiveConsole()
